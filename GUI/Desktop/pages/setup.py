@@ -2,10 +2,10 @@
 
 import logging
 
-from PySide6.QtCore import  Qt, QThread, Signal
+from PySide6.QtCore import  QObject, Qt, QThread, Signal
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-from CORE.Services.setup import *
+from CORE.Services.setup import make_dirs
 from CORE.Services.translator import TranslatorService
 from CORE.Services.user import UserService
 
@@ -22,7 +22,7 @@ class SetupPage(QWidget):
     """
     setup_finished = Signal()
 
-    def __init__(self, config: UserService, translator: TranslatorService, parent=None):
+    def __init__(self, config: UserService, translator: TranslatorService, parent: QWidget | None = None):
 
         """
         Initializes the SetupPage UI components and layout.
@@ -43,7 +43,7 @@ class SetupPage(QWidget):
 
         # === INTERNAL PARAMETER(S) ===
         self.is_running = False
-        self.thread = None
+        self.setup_thread: SetupThread | None = None
 
         # === UI BUILDER(S) ===
         self._build_ui()
@@ -74,18 +74,19 @@ class SetupPage(QWidget):
             return
 
         self.is_running = True
+        self.spinner.start()
 
-        self.thread = SetupThread(
+        self.setup_thread = SetupThread(
             config=self.config,
             translator=self.translator,
             parent=self
         )
 
-        self.thread.setup_message.connect(self.on_setup_step_changed)
-        self.thread.setup_finished.connect(self.on_setup_finished)
-        self.thread.setup_error.connect(self.on_setup_error)
+        self.setup_thread.setup_message.connect(self.on_setup_step_changed)
+        self.setup_thread.setup_finished.connect(self.on_setup_finished)
+        self.setup_thread.setup_error.connect(self.on_setup_error)
 
-        self.thread.start()
+        self.setup_thread.start()
 
     def on_setup_step_changed(self, step_key: str):
 
@@ -135,12 +136,12 @@ class SetupPage(QWidget):
         """
         LOG.debug("Building UI for SetupPage...")
 
-        self.main_layout = QVBoxLayout(self)
+        self.main_layout: QVBoxLayout = QVBoxLayout(self)
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.spinner = SpinnerProgressBar(radius=40, dot_size=12, speed=80)
+        self.spinner: SpinnerProgressBar = SpinnerProgressBar(radius=40, dot_size=12, speed=80)
 
-        self.label = QLabel(self.translator.get(self.current_step_key))
+        self.label: QLabel = QLabel(self.translator.get(self.current_step_key))
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.main_layout.addStretch()
@@ -166,11 +167,11 @@ class SetupThread(QThread):
     Manages the sequential and potentially time-consuming initial setup tasks
     (directory creation, config loading) in a separate thread to prevent GUI freezing.
     """
-    setup_message = Signal(str)
-    setup_finished = Signal()
-    setup_error = Signal(str)
+    setup_message: Signal = Signal(str)
+    setup_finished: Signal = Signal()
+    setup_error: Signal = Signal(str)
 
-    def __init__(self, config: UserService, translator: TranslatorService, parent=None):
+    def __init__(self, config: UserService, translator: TranslatorService, parent: QObject | None = None):
 
         """
         Initializes the setup worker thread.
@@ -178,13 +179,13 @@ class SetupThread(QThread):
         Args:
             config (UserService): User configuration service.
             translator (TranslatorService): Translation provider service.
-            parent (Optional[QObject]): Parent QObject managing thread lifecycle.
+            parent (QObject): Parent QObject managing thread lifecycle.
         """
         super().__init__(parent)
 
         # === INTERNAL SERVICE(S) ===
-        self.config = config
-        self.translator = translator
+        self.config: UserService = config
+        self.translator: TranslatorService = translator
 
     def run(self):
 

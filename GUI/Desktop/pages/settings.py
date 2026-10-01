@@ -6,33 +6,41 @@ import os
 from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import (
-    QFrame, QHBoxLayout, QListWidget, QListWidgetItem,
-    QStackedWidget, QVBoxLayout, QWidget
+    QFrame,
+    QHBoxLayout,
+    QListWidget,
+    QListWidgetItem,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from CORE.Services.setup import ASSETS_FOLDER
 from CORE.Services.translator import TranslatorService
 from CORE.Services.user import UserService
-
+from GUI.__assets.widgets.transitions import FadeTransition
 from GUI.Desktop.pages.subpages.settings.ai import AIPage
 from GUI.Desktop.pages.subpages.settings.general import GeneralPage
 from GUI.Desktop.pages.subpages.settings.profile import ProfilePage
 from GUI.Desktop.pages.subpages.settings.system import SystemPage
 from GUI.Desktop.pages.subpages.settings.websites import WebsitesPage
-from GUI.__assets.widgets.transitions import FadeTransition
 
 LOG = logging.getLogger(__name__)
 
-class SettingsPage(QWidget):
 
+class SettingsPage(QWidget):
     """
     QSide6 widget dedicated to user settings management.
     Provides a sidebar for navigating between different settings categories
     and a main area for displaying the corresponding configuration subpages.
     """
 
-    def __init__(self, config: UserService, translator: TranslatorService, parent: QWidget | None = None):
-
+    def __init__(
+        self,
+        config: UserService,
+        translator: TranslatorService,
+        parent: QWidget | None = None,
+    ):
         """
         Initializes the SettingsPage UI components and layout.
 
@@ -54,16 +62,23 @@ class SettingsPage(QWidget):
 
     # === PUBLIC METHOD(S) ===
     def retranslate_ui(self):
-
         """
         Updates the text of every widget of the application depending on the new user language input.
         """
         LOG.debug("Retranslating UI in SettingsPage...")
 
-        self.sidebar.item(0).setText(self.translator.get("page_settings_general.category"))
-        self.sidebar.item(1).setText(self.translator.get("page_settings_websites.category"))
-        self.sidebar.item(2).setText(self.translator.get("page_settings_profile.category"))
-        self.sidebar.item(3).setText(self.translator.get("page_settings_system.category"))
+        self.sidebar.item(0).setText(
+            self.translator.get("page_settings_general.category")
+        )
+        self.sidebar.item(1).setText(
+            self.translator.get("page_settings_websites.category")
+        )
+        self.sidebar.item(2).setText(
+            self.translator.get("page_settings_profile.category")
+        )
+        self.sidebar.item(3).setText(
+            self.translator.get("page_settings_system.category")
+        )
         self.sidebar.item(4).setText(self.translator.get("page_settings_AI.category"))
 
         self.subpage_general.retranslate_ui()
@@ -74,7 +89,6 @@ class SettingsPage(QWidget):
 
     # === PRIVATE METHOD(S) ===
     def _build_ui(self):
-
         """
         Constructs the main layout, sidebar navigation, and the stacked widget for subpages.
         """
@@ -101,11 +115,19 @@ class SettingsPage(QWidget):
         self.content_stack = QStackedWidget()
         self.transition = FadeTransition(self.content_stack)
 
-        self.subpage_general = GeneralPage(config=self.configs, translator=self.translator, parent=self)
-        self.subpage_websites = WebsitesPage(config=self.configs, translator=self.translator, parent=self)
+        self.subpage_general = GeneralPage(
+            config=self.configs, translator=self.translator, parent=self
+        )
+        self.subpage_websites = WebsitesPage(
+            config=self.configs, translator=self.translator, parent=self
+        )
         self.subpage_profile = ProfilePage(self.configs, self.translator, parent=self)
-        self.subpage_system = SystemPage(config=self.configs, translator=self.translator, parent=self)
-        self.subpage_ai = AIPage(config=self.configs, translator=self.translator, parent=self)
+        self.subpage_system = SystemPage(
+            config=self.configs, translator=self.translator, parent=self
+        )
+        self.subpage_ai = AIPage(
+            config=self.configs, translator=self.translator, parent=self
+        )
 
         self.content_stack.addWidget(self.subpage_general)
         self.content_stack.addWidget(self.subpage_websites)
@@ -122,9 +144,18 @@ class SettingsPage(QWidget):
 
         # --- POPULATE SIDEBAR ---
         sidebar_pages = [
-            ("general_Black.svg", self.translator.get("page_settings_general.category")),
-            ("websites_Black.svg", self.translator.get("page_settings_websites.category")),
-            ("profile_Black.svg", self.translator.get("page_settings_profile.category")),
+            (
+                "general_Black.svg",
+                self.translator.get("page_settings_general.category"),
+            ),
+            (
+                "websites_Black.svg",
+                self.translator.get("page_settings_websites.category"),
+            ),
+            (
+                "profile_Black.svg",
+                self.translator.get("page_settings_profile.category"),
+            ),
             ("system_Black.svg", self.translator.get("page_settings_system.category")),
             ("ai_Black.svg", self.translator.get("page_settings_AI.category")),
         ]
@@ -140,7 +171,6 @@ class SettingsPage(QWidget):
         self.content_stack.setCurrentIndex(0)
 
     def _apply_stylesheet(self):
-
         """
         Applies CSS styling to the Settings page and its sidebar.
         """
@@ -179,42 +209,65 @@ class SettingsPage(QWidget):
         """)
 
     def _connect_signals(self):
-
         """
         Connects sidebar navigation signals.
         """
         self.sidebar.itemClicked.connect(self._routes)
 
     def _routes(self):
-
         """
         Direct routing based on the selected sidebar index.
         """
         index = self.sidebar.currentRow()
 
-        if index == 0: QTimer.singleShot(10, self._toggle_general)
-        elif index == 1: QTimer.singleShot(10, self._toggle_websites)
-        elif index == 2: QTimer.singleShot(10, self._toggle_profile)
-        elif index == 3: QTimer.singleShot(10, self._toggle_system)
-        elif index == 4: QTimer.singleShot(10, self._toggle_ai)
+        if index == 0:
+            QTimer.singleShot(10, self._toggle_general)
+        elif index == 1:
+            QTimer.singleShot(10, self._toggle_websites)
+        elif index == 2:
+            QTimer.singleShot(10, self._toggle_profile)
+        elif index == 3:
+            QTimer.singleShot(10, self._toggle_system)
+        elif index == 4:
+            QTimer.singleShot(10, self._toggle_ai)
 
     # --- ROUTING TRANSITIONS ---
     def _toggle_general(self):
         if self.content_stack.currentWidget() != self.subpage_general:
-            self.transition.switch_to(self.subpage_general, on_start=lambda: self.sidebar.setEnabled(False), on_finished=lambda: self.sidebar.setEnabled(True))
+            self.transition.switch_to(
+                self.subpage_general,
+                on_start=lambda: self.sidebar.setEnabled(False),
+                on_finished=lambda: self.sidebar.setEnabled(True),
+            )
 
     def _toggle_websites(self):
         if self.content_stack.currentWidget() != self.subpage_websites:
-            self.transition.switch_to(self.subpage_websites, on_start=lambda: self.sidebar.setEnabled(False), on_finished=lambda: self.sidebar.setEnabled(True))
+            self.transition.switch_to(
+                self.subpage_websites,
+                on_start=lambda: self.sidebar.setEnabled(False),
+                on_finished=lambda: self.sidebar.setEnabled(True),
+            )
 
     def _toggle_profile(self):
         if self.content_stack.currentWidget() != self.subpage_profile:
-            self.transition.switch_to(self.subpage_profile, on_start=lambda: self.sidebar.setEnabled(False), on_finished=lambda: self.sidebar.setEnabled(True))
+            self.transition.switch_to(
+                self.subpage_profile,
+                on_start=lambda: self.sidebar.setEnabled(False),
+                on_finished=lambda: self.sidebar.setEnabled(True),
+            )
 
     def _toggle_system(self):
         if self.content_stack.currentWidget() != self.subpage_system:
-            self.transition.switch_to(self.subpage_system, on_start=lambda: self.sidebar.setEnabled(False), on_finished=lambda: self.sidebar.setEnabled(True))
+            self.transition.switch_to(
+                self.subpage_system,
+                on_start=lambda: self.sidebar.setEnabled(False),
+                on_finished=lambda: self.sidebar.setEnabled(True),
+            )
 
     def _toggle_ai(self):
         if self.content_stack.currentWidget() != self.subpage_ai:
-            self.transition.switch_to(self.subpage_ai, on_start=lambda: self.sidebar.setEnabled(False), on_finished=lambda: self.sidebar.setEnabled(True))
+            self.transition.switch_to(
+                self.subpage_ai,
+                on_start=lambda: self.sidebar.setEnabled(False),
+                on_finished=lambda: self.sidebar.setEnabled(True),
+            )

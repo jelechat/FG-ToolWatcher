@@ -11,25 +11,26 @@ from PySide6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget
 from CORE.Services.setup import *
 from CORE.Services.translator import TranslatorService
 from CORE.Services.user import UserService
-
+from GUI.__assets.layouts.bottom_buttons import create_bottom_bar
+from GUI.__assets.layouts.top_buttons import create_top_bar
+from GUI.__assets.layouts.top_header import (
+    create_header,
+    create_logo_widget,
+    create_title_widget,
+)
+from GUI.__assets.widgets.background import BackgroundOverlay
+from GUI.__assets.widgets.buttons import LanguageButton, MenuButton, UpdateButton
+from GUI.__assets.widgets.transitions import FadeTransition
 from GUI.Desktop.pages.dashboard import DashboardPage
 from GUI.Desktop.pages.profile import ProfilePage
 from GUI.Desktop.pages.search import SearchPage
 from GUI.Desktop.pages.settings import SettingsPage
 from GUI.Desktop.pages.setup import SetupPage
 
-from GUI.__assets.layouts.bottom_buttons import create_bottom_bar
-from GUI.__assets.layouts.top_buttons import create_top_bar
-from GUI.__assets.layouts.top_header import create_header, create_logo_widget, create_title_widget
-from GUI.__assets.widgets.background import BackgroundOverlay
-from GUI.__assets.widgets.buttons import LanguageButton, MenuButton, UpdateButton
-from GUI.__assets.widgets.transitions import FadeTransition
-
-
 LOG = logging.getLogger(__name__)
 
-class WatcherGUI(QWidget):
 
+class WatcherGUI(QWidget):
     """
     Main Application Window (GUI) for FG-ToolWatcher.
 
@@ -39,8 +40,9 @@ class WatcherGUI(QWidget):
         Language switching
     """
 
-    def __init__(self, config_service: UserService, translator_service: TranslatorService):
-
+    def __init__(
+        self, config_service: UserService, translator_service: TranslatorService
+    ):
         """
         Initializes the main GUI components, styles, and page stack.
 
@@ -61,10 +63,8 @@ class WatcherGUI(QWidget):
         self._build_ui()
         self._connect_signals()
 
-
     # === PUBLIC METHOD(S) ===
     def closeEvent(self, event: QCloseEvent):
-
         """
         Handles the window close event to ensure threads are stopped.
 
@@ -82,14 +82,18 @@ class WatcherGUI(QWidget):
         """
         LOG.debug("Close event triggered...")
 
-        if hasattr(self, 'main_page') and self.main_page.watcher_thread.isRunning():
+        """
+        if hasattr(self, "main_page") and self.main_page.watcher_thread.isRunning():
             LOG.debug("Watcher thread is running, attempting to stop...")
             self.main_page.stop_watcher()
 
             if self.main_page.watcher_thread.isRunning():
-                 LOG.debug("Warning: Watcher thread still running after stop attempt during close.")
+                LOG.debug(
+                    "Warning: Watcher thread still running after stop attempt during close."
+                )
+        """
 
-        if hasattr(self, 'search_page') and self.search_page._db_conn:
+        if hasattr(self, "search_page") and self.search_page._db_conn:
             LOG.debug("SQLite connection is running, attempting to stop...")
             self.search_page.close_db_connection()
             LOG.debug("SQLite connection closed.")
@@ -97,32 +101,44 @@ class WatcherGUI(QWidget):
         LOG.debug("Accepting close event.")
         event.accept()
 
-
     def sync_db(self):
-        return #TODO
+        return  # TODO
 
     def toggle_settings(self):
         if self.stack.currentWidget() != self.settings_page:
-            self.transition.switch_to(self.settings_page, on_start=lambda: None, on_finished=lambda: self._update_top_buttons())
+            self.transition.switch_to(
+                self.settings_page,
+                on_start=lambda: None,
+                on_finished=lambda: self._update_top_buttons(),
+            )
         elif self.stack.currentWidget() != self.main_page:
-            self.transition.switch_to(self.main_page, on_start=lambda: None, on_finished=lambda: self._update_top_buttons())
+            self.transition.switch_to(
+                self.main_page,
+                on_start=lambda: None,
+                on_finished=lambda: self._update_top_buttons(),
+            )
 
     def toggle_calibration(self):
-        self.transition.switch_to(self.search_page, on_start=lambda: None, on_finished=lambda: self._update_top_buttons())
+        self.transition.switch_to(
+            self.search_page,
+            on_start=lambda: None,
+            on_finished=lambda: self._update_top_buttons(),
+        )
 
     def show_docs(self):
-        QDesktopServices.openUrl(QUrl("https://github.com/jejeAKAgg/FG-ToolWatcher/wiki"))
+        QDesktopServices.openUrl(
+            QUrl("https://github.com/jejeAKAgg/FG-ToolWatcher/wiki")
+        )
 
     def show_github(self):
         QDesktopServices.openUrl(QUrl("https://github.com/jejeAKAgg/FG-ToolWatcher"))
 
     def show_ticket(self):
-        #TicketService(self.USERconfig, parent=self).exec()
+        # TicketService(self.USERconfig, parent=self).exec()
         return
 
     # === PRIVATE METHOD(S) ===
     def _build_ui(self):
-
         """
         Constructs the main user interface, including the window settings,
         navigation bars, background, and the page stack.
@@ -140,35 +156,66 @@ class WatcherGUI(QWidget):
 
         # --- APP Background ---
         self.background_widget = BackgroundOverlay(
-            background_path=os.path.join(ASSETS_FOLDER, "backgrounds", "FGbackground8.jpg"),
-            parent=self
+            background_path=os.path.join(
+                ASSETS_FOLDER, "backgrounds", "FGbackground8.jpg"
+            ),
+            parent=self,
         )
         self.background_widget.setGeometry(0, 0, self.width(), self.height())
         self.background_widget.lower()
 
         # --- TOP BAR & HEADER ---
-        self.settings_button = MenuButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "settings_White.svg"))
-        self.sync_button = UpdateButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "synchronize_White.svg"))
-        self.docs_button = MenuButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "documentation_White.svg"))
+        self.settings_button = MenuButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "settings_White.svg")
+        )
+        self.sync_button = UpdateButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "synchronize_White.svg")
+        )
+        self.docs_button = MenuButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "documentation_White.svg")
+        )
 
-        self.english_button = LanguageButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "english.svg"))
-        self.french_button = LanguageButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "french.svg"))
-        self.netherlands_button = LanguageButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "netherlands.svg"))
+        self.english_button = LanguageButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "english.svg")
+        )
+        self.french_button = LanguageButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "french.svg")
+        )
+        self.netherlands_button = LanguageButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "netherlands.svg")
+        )
 
         TOP_BAR = create_top_bar(
             left_widgets=[self.settings_button, self.sync_button],
-            center_widgets=[self.english_button, self.french_button, self.netherlands_button],
-            right_widgets=[self.docs_button]
+            center_widgets=[
+                self.english_button,
+                self.french_button,
+                self.netherlands_button,
+            ],
+            right_widgets=[self.docs_button],
         )
         HEADER = create_header(
-            widgets=["STRETCH", create_logo_widget(os.path.join(ASSETS_FOLDER, "icons", "FG-Black.svg")), create_title_widget("TOOLWATCHER"), "STRETCH"]
+            widgets=[
+                "STRETCH",
+                create_logo_widget(
+                    os.path.join(ASSETS_FOLDER, "icons", "FG-Black.svg")
+                ),
+                create_title_widget("TOOLWATCHER"),
+                "STRETCH",
+            ]
         )
 
         # --- BOTTOM BAR ---
-        self.ticket_button = MenuButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "bug_White.svg"))
-        self.github_button = MenuButton(icon_path=os.path.join(ASSETS_FOLDER, "icons", "github_White.svg"))
+        self.ticket_button = MenuButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "bug_White.svg")
+        )
+        self.github_button = MenuButton(
+            icon_path=os.path.join(ASSETS_FOLDER, "icons", "github_White.svg")
+        )
 
-        BOTTOM_BAR = create_bottom_bar(widgets=[self.ticket_button, "STRETCH", self.github_button])
+        BOTTOM_BAR = create_bottom_bar(
+            widgets=[self.ticket_button, "STRETCH", self.github_button]
+        )
 
         # --- INITIAL BUTTON STATE ---
         self.settings_button.setEnabled(False)
@@ -182,17 +229,27 @@ class WatcherGUI(QWidget):
         self.stack_container = QWidget()
         self.transition = FadeTransition(self.stack)
 
-        self.setup_page = SetupPage(config=self.configs, translator=self.translator, parent=self.stack_container)
-        self.profile_page = ProfilePage(config=self.configs, translator=self.translator, parent=self.stack_container)
-        self.main_page = DashboardPage(config=self.configs, translator=self.translator, parent=self.stack_container)
-        self.search_page = SearchPage(config=self.configs, translator=self.translator, parent=self.stack_container)
-        self.settings_page = SettingsPage(config=self.configs, translator=self.translator, parent=self.stack_container)
+        self.setup_page = SetupPage(
+            config=self.configs, translator=self.translator, parent=self.stack_container
+        )
+        self.profile_page = ProfilePage(
+            config=self.configs, translator=self.translator, parent=self.stack_container
+        )
+        self.main_page = DashboardPage(
+            config=self.configs, translator=self.translator, parent=self.stack_container
+        )
+        self.search_page = SearchPage(
+            config=self.configs, translator=self.translator, parent=self.stack_container
+        )
+        self.settings_page = SettingsPage(
+            config=self.configs, translator=self.translator, parent=self.stack_container
+        )
 
-        self.stack.addWidget(self.setup_page)       # index 0
-        self.stack.addWidget(self.profile_page)     # index 1
-        self.stack.addWidget(self.main_page)        # index 2
-        self.stack.addWidget(self.search_page)      # index 3
-        self.stack.addWidget(self.settings_page)    # index 4
+        self.stack.addWidget(self.setup_page)  # index 0
+        self.stack.addWidget(self.profile_page)  # index 1
+        self.stack.addWidget(self.main_page)  # index 2
+        self.stack.addWidget(self.search_page)  # index 3
+        self.stack.addWidget(self.settings_page)  # index 4
 
         self.stack_container.setLayout(self.stack)
 
@@ -207,7 +264,6 @@ class WatcherGUI(QWidget):
         main_layout.addWidget(BOTTOM_BAR)
 
     def _connect_signals(self):
-
         """
         Connects all UI signals to their respective slot functions.
         """
@@ -223,14 +279,15 @@ class WatcherGUI(QWidget):
         # Page Transitions
         self.setup_page.setup_finished.connect(
             lambda: self.transition.switch_to(
-                self.profile_page if not self.configs.get("user_mail") else self.main_page,
-                on_finished=self._update_top_buttons
+                self.profile_page
+                if not self.configs.get("user_mail")
+                else self.main_page,
+                on_finished=self._update_top_buttons,
             )
         )
         self.profile_page.configs_updated.connect(
             lambda: self.transition.switch_to(
-                self.main_page,
-                on_finished=self._update_top_buttons
+                self.main_page, on_finished=self._update_top_buttons
             )
         )
 
@@ -240,7 +297,6 @@ class WatcherGUI(QWidget):
         self.netherlands_button.clicked.connect(lambda: self._set_language(code="NL"))
 
     def _retranslate_ui(self):
-
         """
         Function that updates all translatable texts in WatcherGUI and its child pages when the language is changed.
 
@@ -256,7 +312,6 @@ class WatcherGUI(QWidget):
         self.setup_page.retranslate_ui()
 
     def _set_language(self, code: str):
-
         """
         Sets the selected language in the user configuration service.
 
@@ -274,7 +329,6 @@ class WatcherGUI(QWidget):
         self._retranslate_ui()
 
     def _update_top_buttons(self):
-
         """
         Function that updates all buttons in WatcherGUI and its child pages when a lambda action is made by the user.
         """

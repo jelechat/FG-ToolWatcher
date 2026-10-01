@@ -38,7 +38,13 @@ class CustomPushButton(QPushButton):
         """
         super().__init__(text, parent)
 
-        self.setFixedSize(width, height)
+        if width and height:
+            self.setFixedSize(width, height)
+        elif height:
+            self.setFixedHeight(height)
+        elif width:
+            self.setFixedWidth(width)
+
         self.setCursor(Qt.PointingHandCursor)
 
         if icon_path:
@@ -136,6 +142,21 @@ class LanguageButton(CustomPushButton):
             bg_color="#818386", hover_color="#6d6e70",
             radius="15px",
             alpha=0.5,
+            parent=parent
+        )
+
+class SaveButton(CustomPushButton):
+    """
+    Preset for the primary save/validation buttons.
+    Height 50, dynamic width based on text. Pure green background.
+    """
+    def __init__(self, parent=None):
+        super().__init__(
+            height=50,
+            bg_color="#00913e", border="none",
+            hover_color="#009536", hover_border="1px solid #3E3E42",
+            text_color="#000000",
+            radius="8px",
             parent=parent
         )
 

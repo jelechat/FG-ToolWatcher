@@ -29,11 +29,11 @@ class GeneralPage(QWidget):
     def __init__(self, config: UserService, translator: TranslatorService, parent: QWidget | None = None):
         super().__init__(parent)
 
-        self.configs    = config
+        self.configs = config
         self.translator = translator
 
         self._toggles: dict[str, QPushButton] = {}
-        self._labels:  dict[str, QLabel]      = {}  # Stores titles for dynamic retranslation
+        self._labels: dict[str, QLabel] = {}  # Stores titles for dynamic retranslation
 
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(60, 50, 60, 0)
