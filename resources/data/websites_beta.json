@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "sites": {
+    "clabots": {
+      "enabled": true,
+
+      "name": "Clabots",
+      "base_url": "https://www.clabots.be/",
+
+      "currency": "EUR",
+      "vat_rate": 1.21,
+
+      "sitemaps": ["https://www.clabots.be/media/sitemaps/1/sitemap-product-1.xml.gz"],
+      "product_url_patterns": ["^https://www\\.clabots\\.be/fr/[^/]+$"],
+      "exclude_url_patterns": ["/fr/catalogue/", "/fr/customer/", "/fr/folder"],
+
+      "scope": null,
+
+      "fields": {
+        "title": {
+          "role": "identity",
+          "label": "Title",
+          "required": true,
+          "sources": [
+            { "css": "h1[itemprop='name']::text" },
+            { "css": "h1.page-title::text" },
+            { "css": "h1::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "brand": {
+          "role": "identity",
+          "sources": [
+            { "xpath": ".//div[contains(@class,'attribute-table__column__label') and normalize-space(.)='Marque']/following-sibling::div[contains(@class,'attribute-table__column__value')]" },
+            { "xpath": ".//div[contains(@class,'attribute-table__column__label') and contains(normalize-space(.), 'Marque')]/following-sibling::div[contains(@class,'attribute-table__column__value')]" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "ean": {
+          "role": "identity",
+          "label": "EAN",
+          "sources": [],
+          "validate": { "type": "ean" }
+        },
+        "mpn": {
+          "role": "identity",
+          "label": "MPN",
+          "sources": [
+            { "xpath": ".//div[contains(@class,'attribute-table__column__label') and normalize-space(.)='Code article du fournisseur']/following-sibling::div[contains(@class,'attribute-table__column__value')]" },
+            { "xpath": ".//div[contains(@class,'attribute-table__column__label') and contains(normalize-space(.), 'Code article')]/following-sibling::div[contains(@class,'attribute-table__column__value')]" }
+          ],
+          "validate": { "type": "mpn" }
+        },
+        "price": {
+          "role": "price",
+          "label": "Price",
+          "vat_included": true,
+          "required": true,
+          "sources": [
+            { "css": ".price-wrapper .your-price::text" },
+            { "xpath": ".//p[contains(@class,'your-price-label')]/following-sibling::p[1]" }
+          ],
+          "validate": { "type": "price" }
+        }
+      }
+    },
+    "fixami": {
+      "enabled": true,
+
+      "name": "Fixami",
+      "base_url": "https://www.fixami.be/fr/",
+
+      "currency": "EUR",
+      "vat_rate": 1.21,
+
+      "sitemaps": ["https://www.fixami.be/sitemap.xml"],
+      "product_url_patterns": ["^https://www\\.fixami\\.be/fr/.+\\.html$"],
+      "exclude_url_patterns": ["/categorie/", "/marque/"],
+
+      "scope": null,
+
+      "fields": {
+        "title": {
+          "role": "identity",
+          "label": "Title",
+          "required": true,
+          "sources": [
+            { "jsonld": "name" },
+            { "css": "h1[type='PRODUCT_HEADING_1']::text" },
+            { "css": "h1::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "brand": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "brand.name" },
+            { "css": "a[data-testid='product-manufacturer-link']::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "ean": {
+          "role": "identity",
+          "label": "EAN",
+          "sources": [
+            { "jsonld": "gtin13" },
+            { "xpath": "//dt[contains(., 'EAN')]/following-sibling::dd" }
+          ],
+          "validate": { "type": "ean" }
+        },
+        "mpn": {
+          "role": "identity",
+          "label": "MPN",
+          "sources": [
+            { "jsonld": "mpn" },
+            { "xpath": "//dt[contains(., 'Code du modèle')]/following-sibling::dd" }
+          ],
+          "validate": { "type": "mpn" }
+        },
+        "price": {
+          "role": "price",
+          "label": "Price",
+          "vat_included": true,
+          "required": true,
+          "sources": [
+            { "jsonld": "offers.price" },
+            { "meta": "property=product:price:amount" },
+            { "css": "span[translate='no']::text" }
+          ],
+          "validate": { "type": "price" }
+        }
+      }
+    },
+    "klium": {
+      "enabled": true,
+
+      "name": "Klium",
+      "base_url": "https://www.klium.be/fr/",
+
+      "currency": "EUR",
+      "vat_rate": 1.21,
+
+      "sitemaps": ["https://www.klium.be/sitemap.xml"],
+      "product_url_patterns": ["^https://www\\.klium\\.be/fr/[^/]+-\\d+$"],
+      "exclude_url_patterns": [],
+
+      "scope": null,
+
+      "fields": {
+        "title": {
+          "role": "identity",
+          "label": "Title",
+          "required": true,
+          "sources": [
+            { "jsonld": "name" },
+            { "css": "h1#product_name_value::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "brand": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "brand.name" },
+            { "css": "li.product-manufacturer a::text" },
+            { "css": ".pdp-titlebar__brand img::attr(alt)" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "ean": {
+          "role": "identity",
+          "label": "EAN",
+          "sources": [
+            { "jsonld": "gtin13" },
+            { "css": "strong.pdp-ids__ean::text" }
+          ],
+          "validate": { "type": "ean" }
+        },
+        "mpn": {
+          "role": "identity",
+          "label": "MPN",
+          "sources": [
+            { "jsonld": "mpn" },
+            { "css": "strong.pdp-ids__supplier::text" }
+          ],
+          "validate": { "type": "mpn" }
+        },
+        "price": {
+          "role": "price",
+          "label": "Price",
+          "vat_included": true,
+          "required": true,
+          "sources": [
+            { "jsonld": "offers.price" },
+            { "meta": "property=product:price:amount" },
+            { "css": "div.pdp-price span.current-price-value::attr(content)" },
+            { "css": "div.pdp-price span.pdp-price__value" }
+          ],
+          "validate": { "type": "price" }
+        }
+      }
+    },
+    "lecot": {
+      "enabled": true,
+
+      "name": "Lecot",
+      "base_url": "https://lecot.be/",
+
+      "currency": "EUR",
+      "vat_rate": 1.21,
+
+      "sitemaps": ["https://lecot.be/shop/fr-be/sitemap.xml"],
+      "product_url_patterns": ["^https://lecot\\.be/shop/fr-be/p/.+"],
+      "exclude_url_patterns": [],
+
+      "scope": "main#content-main",
+
+      "fields": {
+        "title": {
+          "role": "identity",
+          "label": "Title",
+          "required": true,
+          "sources": [
+            { "jsonld": "name" },
+            { "css": "h1.product-detail-name::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "brand": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "brand.name" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "ean": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "sku" },
+            { "xpath": ".//tr[th[contains(text(), 'EAN:')]]/td/span" }
+          ],
+          "validate": { "type": "ean" }
+        },
+        "mpn": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "mpn" },
+            { "xpath": ".//div[span[contains(text(), 'Réf. n°:')]]/span[contains(@class, 'product-attributes-item-value')]" }
+          ],
+          "validate": { "type": "mpn" }
+        },
+        "price": {
+          "role": "price",
+          "required": true,
+          "vat_included": true,
+          "sources": [
+            { "jsonld": "offers.price" },
+            { "css": "span.product-price-value::text" }
+          ],
+          "validate": { "type": "price" }
+        }
+      }
+    },
+    "toolnation": {
+      "enabled": true,
+
+      "name": "Toolnation",
+      "base_url": "https://www.toolnation.fr/",
+
+      "currency": "EUR",
+      "vat_rate": 1.20,
+
+      "sitemaps": ["https://www.toolnation.fr/sitemap/sitemap_fr_index.xml"],
+      "product_url_patterns": ["^https://www\\.toolnation\\.fr/[^/]+\\.html$"],
+      "exclude_url_patterns": [],
+
+      "scope": "main#maincontent",
+
+      "fields": {
+        "title": {
+          "role": "identity",
+          "label": "Title",
+          "required": true,
+          "sources": [
+            { "jsonld": "name" },
+            { "css": "h1.page-title span.base::text" },
+            { "css": "h1.page-title [data-ui-id='page-title-wrapper']::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "brand": {
+          "role": "identity",
+          "sources": [
+            { "jsonld": "brand.name" },
+            { "css": "span.brand-title a::text" }
+          ],
+          "validate": { "type": "text" }
+        },
+        "ean": {
+          "role": "identity",
+          "label": "EAN",
+          "sources": [
+            { "jsonld": "sku" },
+            { "xpath": ".//span[starts-with(normalize-space(.), 'EAN')]" }
+          ],
+          "validate": { "type": "ean" }
+        },
+        "mpn": {
+          "role": "identity",
+          "label": "MPN",
+          "sources": [
+            { "xpath": ".//tr[th[normalize-space(.)=\"Numéro d'article\"]]/td" }
+          ],
+          "validate": { "type": "mpn" }
+        },
+        "price": {
+          "role": "price",
+          "label": "Price",
+          "vat_included": true,
+          "required": true,
+          "sources": [
+            { "jsonld": "offers.price" },
+            { "attr": "itemprop=price::content" },
+            { "css": ".final-price .price-wrapper .price" }
+          ],
+          "validate": { "type": "price" }
+        }
+      }
+    }
+  }
+}

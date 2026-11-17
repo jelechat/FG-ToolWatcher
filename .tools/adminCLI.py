@@ -1,102 +1,64 @@
-# .tools/adminCLI.py
-import os
-import sys
-
+import argparse
 import logging
-
+import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from DATABASE.Loaders.LOADERengine import LoaderEngine
-from DATABASE.Sitemaps.SITEMAPengine import SITEMAPengine
+from database.scraper import ScraperEngine
+from database.sitemaps import SitemapEngine
+from database.utils.web_manager import WebsiteManager
 
-def process_loader(site: str, log_level: int) -> str:
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SITES = ["clabots", "fixami", "klium", "lecot", "toolnation"]
 
-    """
-    Initializes and runs the LoaderEngine for the given site.
-    """
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s [%(processName)s] %(message)s',
-        datefmt='%H:%M:%S'
-    )
+FORMAT = "%(asctime)s [%(processName)s] %(message)s"
 
-    loader = LoaderEngine(site)
-    loader.run()
-    return site
 
-def process_sitemap(site: str, log_level: int) -> str:
+def _data() -> WebsiteManager:
+    return WebsiteManager(os.path.join(BASE_DIR, "resources", "data", "websites_beta.json"))
 
-    """
-    Initializes and runs the SITEMAPengine for the given site.
-    """
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s [%(processName)s] %(message)s',
-        datefmt='%H:%M:%S'
-    )
-    
-    sitemap = SITEMAPengine(site)
-    sitemap.run()
-    return site
+
+def run_sitemap(site: str, level: int) -> None:
+    logging.basicConfig(level=level, format=FORMAT, datefmt="%H:%M:%S")
+    SitemapEngine(data=_data(), website=site).run()
+
+
+def run_loader(site: str, level: int) -> None:
+    logging.basicConfig(level=level, format=FORMAT, datefmt="%H:%M:%S")
+    ScraperEngine(data=_data(), website=site).run()
+
+
+def run_phase(worker, sites: list[str], level: int, label: str) -> None:
+    with ProcessPoolExecutor(max_workers=len(sites)) as executor:
+        futures = {executor.submit(worker, site, level): site for site in sites}
+        for future in as_completed(futures):
+            site = futures[future]
+            try:
+                future.result()
+                logging.info(f"[{site}] {label} terminé")
+            except Exception:
+                logging.exception(f"[{site}] {label} échoué")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="FG-ToolWatcher — pipeline")
+    parser.add_argument("--site", help="un seul site (ex: FIXAMI)")
+    parser.add_argument("--sitemap", action="store_true", help="fetch les sitemaps")
+    parser.add_argument("--loader", action="store_true", help="scrape les produits")
+    parser.add_argument("--debug", action="store_true")
+    args = parser.parse_args()
+
+    level = logging.DEBUG if args.debug else logging.INFO
+    sites = [args.site.lower()] if args.site else SITES
+
+    # par défaut : cycle complet (sitemap puis loader)
+    do_sitemap = args.sitemap or not (args.sitemap or args.loader)
+    do_loader = args.loader or not (args.sitemap or args.loader)
+
+    if do_sitemap:
+        run_phase(run_sitemap, sites, level, "sitemap")
+    if do_loader:
+        run_phase(run_loader, sites, level, "loader")
+
 
 if __name__ == "__main__":
-
-    # === ARGs ===
-    ARGS = sys.argv[1:]
-
-    # === LOGGING configuration ===
-    if "--debug" in ARGS:
-        LEVEL = logging.DEBUG
-        ARGS.remove("--debug")
-    else:
-        LEVEL = logging.INFO
-
-    # --- LOGGING SYSTEM ---
-    logging.basicConfig(
-        level=LEVEL,
-        format='%(asctime)s [%(processName)s] %(message)s',
-        datefmt='%H:%M:%S'
-    )
-
-    # === Router ===
-    if len(ARGS) == 1 and ARGS[0] == '--sitemap':
-        SITES = ["CLABOTS", "FIXAMI", "KLIUM", "LECOT", "TOOLNATION"]
-
-        with ProcessPoolExecutor(max_workers=len(SITES)) as executor:
-            # Submitting the tasks
-            futures = {executor.submit(process_sitemap, site, LEVEL): site for site in SITES}
-            
-            # 'as_completed' to capture the end of each task
-            for future in as_completed(futures):
-                site = futures[future]
-                try:
-                    # Checking task end status
-                    future.result() 
-                except Exception as exc:
-                    logging.error(f"❌ The process for {site} crashed unexpectedly: {exc}")
-
-    elif len(ARGS) == 1 and ARGS[0] == '--loader':
-        SITES = ["CLABOTS", "FIXAMI", "KLIUM", "LECOT", "TOOLNATION"]
-
-        with ProcessPoolExecutor(max_workers=len(SITES)) as executor:
-            # Submitting the tasks
-            futures = {executor.submit(process_loader, site, LEVEL): site for site in SITES}
-            
-            # 'as_completed' to capture the end of each task
-            for future in as_completed(futures):
-                site = futures[future]
-                try:
-                    # Checking task end status
-                    future.result() 
-                except Exception as exc:
-                    logging.error(f"❌ The LOADER process for {site} crashed unexpectedly: {exc}")
-
-    else:
-        print(f"Invalid / Unrecognized arguments: {ARGS}")
-        print("---------------------------------------------")
-        print("Usage(s):")
-        print("1) python adminCLI.py [--debug] : Run the full cycle")
-        print("2) python adminCLI.py --loader [--debug] : Fetch the products based on the sitemaps")
-        print("3) python adminCLI.py --sitemap [--debug] : Fetch the sitemaps")
-        print("---------------------------------------------")
-        sys.exit(1)
+    main()
