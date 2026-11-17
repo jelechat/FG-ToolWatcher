@@ -1,22 +1,24 @@
 # =====================================================
 #   FG-ToolWatcher — TODO LIST for V1
-#   Dernière mise à jour : 2026-03-24
+#   Dernière mise à jour : 2026-11-17
 # =====================================================
 
 # ===============================================================
 #   🔴 PRIORITÉ 1 — FACTORISATION
 # ===============================================================
 
+[ ] Filtrer la DB: - (fixami) retirer les liens 'nl' et relancer pour 'fr'
+                   - (all) retirer les articles qui n'ont ni prix ni nom d'article
+                   - (all) refaire la master index
 [ ] refactor & optimiser !!!
-[ ] system_launch_on_startup; (system_minimize_to_tray); system_notify_on_finish; 
 
 # ===============================================================
 #    🔴 PRIORITÉ 1.1 — BACKEND
 # ===============================================================
 
+[ ] Optimiser le démarrage de l'app (cause? -> chargement de la db; trop de modules à charger; le systeme choisi pour l'installation du client; ...) -> ThreadPoolExecutor ?
 [ ] Refactor DBcleaner — charger les CSV sources en parallèle (ThreadPoolExecutor) si possible ? -> pas besoin si fait en local et only dl via programme ? sauf si passage de flambeau et matériel lent
 [ ] Refactor DBcleaner — indexation croisée en parallèle (ThreadPoolExecutor) si goulot détecté si possible ? -> pas besoin si fait en local et only dl via programme ? sauf si passage de flambeau et matériel lent
-[ ] trouver un moyen d'accélérer le démarrage (cause de la lenteur: le chargement de master db au début pour le service de recherche pour l'user) -> ThreadPoolExecutor ?
 [ ] Implémenter DB Georges — scraping ou export ERP du catalogue interne -> à discuter avec staff informatique georges
 [ ] Implémenter loader Georges dans CORE/__DATABASES/loader/ -> à discuter avec staff informatique georges
 
@@ -68,15 +70,16 @@
 [ ] Ajouter code of conducts + contributing
 [ ] Doc utilisateur / developpeur
 [ ] Trello ?
- 
+
 
 # =====================================================
 #   💡 IDÉES / PLUS TARD
 # =====================================================
 
+[ ] Travailler sur une demo (pour le portfolio et/ou les personnes intéressées par le projet Filon / ToolWatcher)
 [ ] Module IA — reconnaissance titre/prix via LLM local (Ollama + moondream) -> ? A réfléchir
       → Fallback si JSON-LD absent ET aucun sélecteur CSS ne match -> ? A réfléchir
 [ ] Page analytics — visualiser l'évolution des prix dans le temps (graphe) -> +++
 [ ] Export PDF du rapport de prix en plus du XLSX -> donner cette possibilité via version WEB ???? (cf point juste au dessus)
-[ ] Mode dark/light theme ? -> En dernier lieu et encore
+[ ] Mode dark/light theme ? -> En dernier lieu
 [ ] API mode — lancer les watchers via CLI sans GUI (déjà partiellement là avec Launcher.py --loader) -> interessant, why not
