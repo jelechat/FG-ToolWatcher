@@ -2,15 +2,13 @@
 
 import logging
 
-from PySide6.QtCore import  QObject, Qt, QThread, Signal
+from PySide6.QtCore import QObject, Qt, QThread, Signal
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-from CORE.Services.setup import make_dirs
-from CORE.Services.translator import TranslatorService
-from CORE.Services.user import UserService
-
+from backend.services.bootstrap_service import make_dirs
+from backend.services.translator_service import TranslatorService
+from backend.services.user_service import UserService
 from GUI.__assets.widgets.progress_bar import SpinnerProgressBar
-
 
 LOG = logging.getLogger(__name__)
 
@@ -197,7 +195,7 @@ class SetupThread(QThread):
         try:
             steps = [
                 ("page_setup_start.text", 3000, lambda: None),
-                ("page_setup_step1.text", 1500, lambda: make_dirs()),
+                #("page_setup_step1.text", 1500, lambda: make_dirs()),
                 ("TODO: DB update", 1500, lambda: None),
                 ("page_setup_complete.text", 1500, lambda: None),
             ]

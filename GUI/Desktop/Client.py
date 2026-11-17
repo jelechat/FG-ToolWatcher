@@ -1,4 +1,5 @@
 # GUI/Desktop/Client.py
+# by LECHAT Jérôme; creation date: 09/2025, last edit: 10/2026
 
 import logging
 import os
@@ -8,9 +9,9 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QCloseEvent, QDesktopServices, QIcon
 from PySide6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget
 
-from CORE.Services.setup import *
-from CORE.Services.translator import TranslatorService
-from CORE.Services.user import UserService
+from backend.services.bootstrap_service import *
+from backend.services.translator_service import TranslatorService
+from backend.services.user_service import UserService
 from GUI.__assets.layouts.bottom_buttons import create_bottom_bar
 from GUI.__assets.layouts.top_buttons import create_top_bar
 from GUI.__assets.layouts.top_header import (
@@ -40,9 +41,7 @@ class WatcherGUI(QWidget):
         Language switching
     """
 
-    def __init__(
-        self, config_service: UserService, translator_service: TranslatorService
-    ):
+    def __init__(self, settings: UserService, languages: TranslatorService):
         """
         Initializes the main GUI components, styles, and page stack.
 
@@ -52,18 +51,17 @@ class WatcherGUI(QWidget):
         """
         super().__init__()
 
-        # === INTERNAL SERVICE(S) ===
-        self.configs = config_service
-        self.translator = translator_service
+        # === internal service(s) ===
+        self.settings = settings
+        self.language = languages
 
-        # === INITIALIZATION ===
-        self.translator.load_language(self.configs.get("system_language", "fr"))
+        self.language.load_language(str(self.settings.get("system_language", "fr")))
 
-        # === UI BUILDER(S) ===
+        # === UI builder(s) ===
         self._build_ui()
         self._connect_signals()
 
-    # === PUBLIC METHOD(S) ===
+    # === Public Method(s) ===
     def closeEvent(self, event: QCloseEvent):
         """
         Handles the window close event to ensure threads are stopped.
@@ -137,7 +135,7 @@ class WatcherGUI(QWidget):
         # TicketService(self.USERconfig, parent=self).exec()
         return
 
-    # === PRIVATE METHOD(S) ===
+    # === Private Method(s) ===
     def _build_ui(self):
         """
         Constructs the main user interface, including the window settings,
@@ -230,19 +228,19 @@ class WatcherGUI(QWidget):
         self.transition = FadeTransition(self.stack)
 
         self.setup_page = SetupPage(
-            config=self.configs, translator=self.translator, parent=self.stack_container
+            config=self.settings, translator=self.language, parent=self.stack_container
         )
         self.profile_page = ProfilePage(
-            config=self.configs, translator=self.translator, parent=self.stack_container
+            config=self.settings, translator=self.language, parent=self.stack_container
         )
         self.main_page = DashboardPage(
-            config=self.configs, translator=self.translator, parent=self.stack_container
+            config=self.settings, translator=self.language, parent=self.stack_container
         )
         self.search_page = SearchPage(
-            config=self.configs, translator=self.translator, parent=self.stack_container
+            config=self.settings, translator=self.language, parent=self.stack_container
         )
         self.settings_page = SettingsPage(
-            config=self.configs, translator=self.translator, parent=self.stack_container
+            config=self.settings, translator=self.language, parent=self.stack_container
         )
 
         self.stack.addWidget(self.setup_page)  # index 0
@@ -280,7 +278,7 @@ class WatcherGUI(QWidget):
         self.setup_page.setup_finished.connect(
             lambda: self.transition.switch_to(
                 self.profile_page
-                if not self.configs.get("user_mail")
+                if not self.settings.get("user_mail")
                 else self.main_page,
                 on_finished=self._update_top_buttons,
             )
@@ -322,8 +320,8 @@ class WatcherGUI(QWidget):
 
         # === LOGIC ===
         # --- Setting new Language & Loading it ---
-        self.configs.set("language", code)
-        self.translator.load_language(code)
+        self.settings.set("language", code)
+        self.language.load_language(code)
 
         # --- Signal ---
         self._retranslate_ui()

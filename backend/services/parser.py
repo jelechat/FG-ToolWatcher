@@ -1,8 +1,8 @@
 # CORE/Services/parser.py
-import re
 import json
+import re
 from pathlib import Path
-from typing import Set, Dict, Optional, Tuple
+from typing import Dict, Optional, Set, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -83,11 +83,14 @@ class ProductDataParser:
         reference = self._find_reference(product_name)
         model = self._clean_model_name(product_name, brand, reference)
 
-        # Final standardized name formatting
+        # Keep the brand in the product title/model when it appears there.
         ref_part = f"[{reference}]" if reference else "[NO_REF]"
-        brand_part = brand.upper() if brand else "[NO_BRAND]"
-
-        standard_name = f"{ref_part} {brand_part} - {model.upper()}".strip()
+        brand_pattern = re.compile(rf"(?<!\w){re.escape(brand)}(?!\w)", re.IGNORECASE) if brand else None
+        if brand and brand_pattern and not brand_pattern.search(model):
+            model_part = f"{brand.upper()} - {model.upper()}"
+        else:
+            model_part = model.upper()
+        standard_name = f"{ref_part} {model_part}".strip()
 
         return {
             "brand": brand.upper() if brand else None,
@@ -179,17 +182,12 @@ class ProductDataParser:
         # 4. Remove sizes / units
         name = UNITS_PATTERN.sub('', name)
 
-        # 5. Remove the brand if it was found
-        if brand:
-            brand_pattern = re.compile(re.escape(brand), re.IGNORECASE)
-            name = brand_pattern.sub('', name)
-
-        # 6. Remove the reference if it was found
+        # 5. Remove the reference if it was found
         if reference:
             ref_pattern = re.compile(re.escape(reference), re.IGNORECASE)
             name = ref_pattern.sub('', name)
 
-        # 7. Final normalization
+        # 6. Final normalization
         name = SEPARATOR_PATTERN.sub(' ', name) # Normalize separators into spaces
         name = WHITESPACE_PATTERN.sub(' ', name) # Replace multiple whitespaces
         name = name.replace('"', "'")           # Replace double quotes for Excel

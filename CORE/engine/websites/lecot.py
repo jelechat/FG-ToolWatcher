@@ -1,9 +1,11 @@
-# CORE/Watchers/fixami.py
-from CORE.Search.WATCHERengine import WatcherEngine
-from CORE.Services.user import UserService
+# CORE/Watchers/lecot.py
 from typing import List
 
+from CORE.Search.WATCHERengine import WatcherEngine
 
-class FIXAMIwatcher(WatcherEngine):
+from CORE.Services.user import UserService
+
+
+class LECOTwatcher(WatcherEngine):
     def __init__(self, items: List[dict], config: UserService, progress_callback=None):
-        super().__init__("FIXAMI", items, config, progress_callback)
+        super().__init__("LECOT", items, config, progress_callback)
