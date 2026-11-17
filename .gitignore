@@ -35,6 +35,9 @@ site/
 
 # ignores any .db file(s)
 *.db
+*.db-shm
+*.db-wal
+*.bak
 
 # ======================================================
 #             3. SECRETS & CONFIG TEMPLATE(S)
