@@ -1,54 +1,50 @@
 # Launcher.py
+# by LECHAT Jérôme; creation date: 09/2025, latest edit: 11/2026
 
+# INTERNAL(S)
 import logging
 import sys
 
-from CORE.Services.logger import setup_logging
-from CORE.Services.setup import *
-from CORE.Services.user import UserService
-from CORE.Services.translator import TranslatorService
+# EXTERNAL(S)
+from PySide6.QtWidgets import QApplication
 
+# SERVICE(S)
+from backend.services.bootstrap_service import *
+from backend.services.log_service import setup_logging
+from backend.services.translator_service import TranslatorService
+from backend.services.user_service import UserService
+
+# GUI
 from GUI.Desktop.Client import WatcherGUI
 
-# =====================================================
-#                 GUI LAUNCHER (DEFAULT)
-# =====================================================
-def RUN_GUI():
+LOG = logging.getLogger(__name__)
 
+
+def RUN_GUI():
     """
     Launches the FG-ToolWatcher application.
     Sets up logging, initializes configuration services, and starts the GUI.
     """
-
-    from PySide6.QtWidgets import QApplication
-
-    LOG = logging.getLogger(__name__)
+    LOG.debug("UI starting...")
 
     try:
-        LOG.debug("UI starting...")
-
-        # === INITIALIZE SERVICES ===
-        # --- User Configuration Service ---
-        config_service = UserService(
-            user_config_path=USER_CONFIG_PATH,
-            catalog_config_path=CATALOG_CONFIG_PATH
-        )
+        # === Service(s) initialization ===
+        user_settings = UserService(user_config_path=USER_CONFIG_PATH) # User settings service
         LOG.debug("UserService initialized.")
 
-        # --- Translator Service ---
-        translator_service = TranslatorService()
+        system_languages = TranslatorService() # Language system service
         LOG.debug("TranslatorService initialized.")
 
-        # === START APPLICATION ===
+        # === SETUP ===
         app = QApplication(sys.argv)
         app.setStyleSheet("* { outline: 0; }")
 
-        window = WatcherGUI(config_service=config_service, translator_service=translator_service)
+        window = WatcherGUI(settings=user_settings, languages=system_languages)
         window.show()
 
         LOG.debug("Window show.")
 
-        # === EXECUTE APPLICATION ===
+        # === START ===
         APP = app.exec()
         LOG.debug(f"Exiting app with the following code: {APP}")
         sys.exit(APP)
@@ -58,12 +54,14 @@ def RUN_GUI():
         sys.exit(1)
 
 
-# =====================================================
-#                   POINT D'ENTRÉE
-# =====================================================
+# ========================
+#          MAIN
+# ========================
 if __name__ == "__main__":
 
     ARGS = sys.argv[1:]
+
+    make_dirs()
 
     # --- LOGGING configuration ---
     if "--debug" in ARGS:

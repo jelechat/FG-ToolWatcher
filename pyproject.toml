@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+pythonpath = [".tools"]
+testpaths = [".tools/tests"]
+
+[tool.mypy]
+python_version = "3.13"
+mypy_path = [".tools"]
+explicit_package_bases = true
+namespace_packages = true

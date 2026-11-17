@@ -2,7 +2,7 @@ site_name: FG-ToolWatcher Documentation
 docs_dir: .docs
 theme:
   name: material
-  palette: 
+  palette:
     # Light Mode (default)
     - media: "(prefers-color-scheme: light)"
       scheme: default

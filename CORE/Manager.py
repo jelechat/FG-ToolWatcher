@@ -1,25 +1,28 @@
 # CORE/Manager.py
+# by LECHAT Jérôme; creation date: 09/2025, latest change: 10/2026
+
+# INTERNAL(S)
+import json
+import logging
 import os
+import subprocess
 import sys
 
-import logging
+# SERVICE(S)
+from backend.services.mail_service import MailService
+from backend.services.bootstrap_service import *
 
-import json
-import requests
-import subprocess
+# WEBSITE(S)
+from CORE.watcher.websites.clabots import CLABOTSwatcher
+from CORE.watcher.websites.fixami import FIXAMIwatcher
+from CORE.watcher.websites.klium import KLIUMwatcher
+from CORE.watcher.websites.lecot import LECOTwatcher
+from CORE.watcher.websites.toolnation import TOOLNATIONwatcher
 
-from CORE.Services.mail import MailService
-from CORE.Services.user import UserService
-from CORE.Services.setup import *
-
-
-
-# ======= LOGGING SYSTEM ========
 LOG = logging.getLogger(__name__)
-# ===============================
 
-class WatcherManager:
 
+class WatcherAPI:
     """
     Main manager for all watcher modules.
 
@@ -27,18 +30,10 @@ class WatcherManager:
         - Initialize and execute each site-specific watcher.
         - Aggregate and export collected data (CSV/XLSX).
         - Handle progress reporting and optional email delivery.
-
     """
 
-    def __init__(self, config: UserService, progress_callback=None, interruption_check=None):
-
-        # === INPUT VARIABLE(S) ===
-        self.config_service = config
-
-        # === LOADING SYSTEM ===
-        self.progress_callback = progress_callback
-
-        # === THREAD SYSTEM ===
+    def __init__(self, interruption_check=None):
+        # === thread system ===
         self.interruption_check = interruption_check
 
         # === INTERNAL PARAMETER(S) ===
@@ -46,13 +41,11 @@ class WatcherManager:
         self.dfs = []
 
         self.sites_mapping = {
-            #'CIPAC':        'CORE.Search.watchers.cipac:CIPACwatcher',
-            'CLABOTS':      'CORE.Search.watchers.clabots:CLABOTSwatcher',
-            #'GEORGES':      'CORE.Search.watchers.georges:FGwatcher',
-            'FIXAMI':       'CORE.Search.watchers.fixami:FIXAMIwatcher',
-            'KLIUM':        'CORE.Search.watchers.klium:KLIUMwatcher',
-            'LECOT':        'CORE.Search.watchers.lecot:LECOTwatcher',
-            'TOOLNATION':   'CORE.Search.watchers.toolnation:TOOLNATIONwatcher',
+            'CLABOTS': CLABOTSwatcher,
+            'FIXAMI': FIXAMIwatcher,
+            'KLIUM': KLIUMwatcher,
+            'LECOT': LECOTwatcher,
+            'TOOLNATION': TOOLNATIONwatcher,
         }
 
     def _update_progress(self, percentage: int):
@@ -90,23 +83,6 @@ class WatcherManager:
 
         LOG.debug(f"{len(items)} articles loaded from the catalog.")
         return items
-
-    def _check_internet_connection(self, timeout: int = 5) -> bool:
-
-        """
-        Network status checker.
-
-        """
-
-        try:
-            response = requests.head("https://dns.google", timeout=timeout)
-            if response.status_code >= 200:
-                LOG.info("Internet connection check successful.")
-                return True
-        except (requests.ConnectionError, requests.Timeout) as e:
-            LOG.exception(f"Internet connection check failed: {e}")
-
-        return False
 
     def _run_site_watchers(self, items: list[dict]):
 

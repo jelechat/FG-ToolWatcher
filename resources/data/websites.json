@@ -1,0 +1,171 @@
+{
+    "CIPAC": {
+        "domain": null,
+        "sitemap_index": null,
+        "jsonld?": false,
+        "jsonld_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "vat?": false,
+        "vat_rate": 1.21
+    },
+    "CLABOTS": {
+        "domain": "clabots.be",
+        "sitemap_index": ["https://www.clabots.be/media/sitemaps/1/sitemap-product-1.xml.gz"],
+        "jsonld?": false,
+        "jsonld_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": ["Marque"],
+            "mpn": ["Code article du fournisseur"],
+            "article": [],
+            "price": ["Prix conseillé (TTC)"]
+        },
+        "vat?": true,
+        "vat_rate": 1.21
+    },
+    "FIXAMI": {
+        "domain": "fixami.be",
+        "sitemap_index": ["https://www.fixami.be/sitemap.xml"],
+        "url_prefixes": ["https://www.fixami.be/fr/"],
+        "jsonld?": true,
+        "jsonld_keywords": {
+            "ean": [],
+            "brand": ["brand.name"],
+            "mpn": [],
+            "article": ["name"],
+            "price": ["offers.price"]
+        },
+        "regex_keywords": {
+            "ean": ["EAN"],
+            "brand": [],
+            "mpn": ["Code du modèle", "Modelcode"],
+            "article": [],
+            "price": []
+        },
+        "vat?": true,
+        "vat_rate": 1.21
+    },
+    "GEORGES": {
+        "domain": null,
+        "sitemap_index": null,
+        "jsonld?": false,
+        "jsonld_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "vat?": true,
+        "vat_rate": 1.21
+    },
+    "KLIUM": {
+        "domain": "klium.be",
+        "sitemap_index": ["https://www.klium.be/sitemap.xml"],
+        "jsonld?": true,
+        "jsonld_keywords": {
+            "ean": ["gtin13"],
+            "brand": ["brand.name"],
+            "mpn": ["mpn"],
+            "article": ["name"],
+            "price": ["offers.price"]
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": ["Réf. n°:"],
+            "article": [],
+            "price": []
+        },
+        "vat?": true,
+        "vat_rate": 1.21
+    },
+    "LECOT": {
+        "domain": "lecot.be",
+        "sitemap_index": ["https://lecot.be/shop/fr-be/sitemap.xml"],
+        "jsonld?": true,
+        "jsonld_keywords": {
+            "ean": ["sku"],
+            "brand": ["brand.name"],
+            "mpn": ["mpn"],
+            "article": ["name"],
+            "price": ["offers.price"]
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "vat?": true,
+        "vat_rate": 1.21
+    },
+    "TOOLNATION": {
+        "domain": "toolnation.fr",
+        "sitemap_index": ["https://www.toolnation.fr/sitemap/sitemap_fr_index.xml"],
+        "jsonld?": true,
+        "jsonld_keywords": {
+            "ean": ["sku"],
+            "brand": [],
+            "mpn": [],
+            "article": ["name"],
+            "price": ["offers.price"]
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": ["Fabricant"],
+            "mpn": ["Numéro d'article"],
+            "article": [],
+            "price": []
+        },
+        "vat?": true,
+        "vat_rate": 1.20
+    },
+    "TOOLSTATION": {
+        "domain": null,
+        "sitemap_index": null,
+        "jsonld?": false,
+        "jsonld_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "regex_keywords": {
+            "ean": [],
+            "brand": [],
+            "mpn": [],
+            "article": [],
+            "price": []
+        },
+        "vat?": false,
+        "vat_rate": 1.21
+    }
+}

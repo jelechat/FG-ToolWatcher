@@ -6,26 +6,29 @@ import os
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
-    QHBoxLayout, QLabel, QLayout,
-    QStackedWidget, QVBoxLayout, QWidget
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from CORE.Services.setup import *
 from CORE.Services.translator import TranslatorService
 from CORE.Services.user import UserService
-
-from GUI.Desktop.pages.subpages.dashboard.quickadd import QuickAddDialog
-
 from GUI.__assets.layouts.bottom_buttons import create_bottom_bar
 from GUI.__assets.layouts.top_buttons import create_top_bar
 from GUI.__assets.widgets.buttons import (
-    DashboardAnalyseButton, DashboardButton,
-    DashboardCheckableButton, DashboardTaxSwitchButton
+    DashboardAnalyseButton,
+    DashboardButton,
+    DashboardCheckableButton,
+    DashboardTaxSwitchButton,
 )
 from GUI.__assets.widgets.search_bar import SearchBarDashboard
 from GUI.__assets.widgets.table import ComparisonTable
 from GUI.__assets.widgets.toast import ToastNotification
-
+from GUI.Desktop.pages.subpages.dashboard.quickadd import QuickAddDialog
 
 LOG = logging.getLogger(__name__)
 
